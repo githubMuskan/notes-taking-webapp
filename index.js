@@ -19,7 +19,7 @@ app.get('/',(req,res)=>{
 });
 
 app.post('/create',(req,res)=>{
-    fs.writeFile(`./files/${req.body.title.split(' ').join("-")}.txt`,req.body.details,(err)=>{
+    fs.writeFile(`./files/${req.body.title.split(' ').join("_")}.txt`,req.body.details,(err)=>{
         res.redirect('/');
     });
 });
@@ -28,6 +28,27 @@ app.get('/files/:filename',(req,res)=>{
     fs.readFile(`./files/${req.params.filename}`,'utf-8',(err,data)=>{
         res.render('file',{data:data, filename:req.params.filename});
     });  
+});
+
+app.get('/edit/:filename',(req,res)=>{
+    fs.readFile(`./files/${req.params.filename}`,'utf-8',(err,data)=>{
+        res.render('edit',{details:data, filename:req.params.filename});
+    });
+});
+
+app.post('/update/:filename',(req,res)=>{
+    newFileName=req.body.newtopicname.split(' ').join("_");
+    oldFileName=req.params.filename.slice(0, -4);
+    if(newFileName!=oldFileName){
+        fs.rename(`./files/${req.params.filename}`,`./files/${newFileName}.txt`,(err)=>{
+            if(err){
+                console.log(err);
+            }
+        });
+    }
+    fs.writeFile(`./files/${newFileName}.txt`,req.body.details,(err)=>{
+        res.redirect('/');
+    });
 });
 
 app.listen(3000,()=>{
